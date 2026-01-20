@@ -1,0 +1,9 @@
+sounddevice
+numpy
+matplotlib
+librosa
+scipy
+Flask
+faster-whisper
+sudachipy
+sudachidict_core
