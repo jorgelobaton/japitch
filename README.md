@@ -1,5 +1,7 @@
 # Japanese Pitch Accent Trainer
 
+![UI](./ui.jpg)
+
 A real-time Japanese pitch accent visualizer for language learners. Record full sentences and compare your pitch trails against native speakers'. Captions are automatically generated and placed on their respective trails.
 
 ## Features
