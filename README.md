@@ -2,60 +2,56 @@
 
 ![UI](./ui.jpg)
 
-A real-time Japanese pitch accent visualizer for language learners. Record full sentences and compare your pitch trails against native speakers'. Captions are automatically generated and placed on their respective trails.
+A computer-assisted language learning (CALL) tool for mastering Japanese pitch accent. This project bridges the gap between raw acoustic pitch detection and linguistic prosody by visualizing the learner's pitch contour (F0) in real-time and aligning it with "Truth" trails from native audio.
 
-## Features
+## Key Features
 
-- **Precision Pitch Tracking**: Uses autocorrelation with parabolic interpolation for sub-sample accuracy, eliminating visual "stair-stepping."
-- **Timeline**: Continuous visualization over long phrases.
-- **Japanese STT Integration**: Automatically transcribes audio using `faster-whisper` and provides Hiragana/Katakana readings via `SudachiPy`.
-- **Caption Mapping**: Intelligently aligns transcription readings to pitch trail segments using a midpoint-based best-fit algorithm, ensuring lyrics appear directly over the corresponding vocalizations.
-- **Overlay and Practice**: Save recordings, upload reference files, and overlay them to visually compare your pitch contours.
+- **Vertical Pitch Scaling**: Unlike standard spectrograms, this tool maps frequency to a semitone-based vertical axis, making pitch intervals visually intuitive for musicians and learners.
+- **Micro-Timing Visualization**: Uses a custom autocorrelation engine with parabolic interpolation to render smooth, sub-sample accurate pitch trails, revealing subtle inflections like the "scoop" at the start of utterances.
+- **Linguistic Alignment**: Integrates **Faster-Whisper** and **SudachiPy** to automatically transcribe speech, break it down into morae, and map textual characters to the corresponding acoustic burst using a midpoint-best-fit algorithm.
+- **Quantified Evaluation**: Includes a rigorous evaluation pipeline against the **JVS Corpus**, offering transparency on the system's alignment accuracy.
 
-## Setup
+## Installation
 
-1. **Install Dependencies**:
+1. **Install Python Dependencies**:
    ```bash
    pip install -r requirements.txt
    ```
-   *Note: FFmpeg is required for audio processing.*
+   *Requires FFmpeg installed on your system.*
 
-2. **Run the App**:
+2. **Run the Application**:
    ```bash
    python app.py
    ```
 
-3. **Open in Browser**:
-   Navigate to `http://localhost:5001`.
+3. **Access**:
+   Open `http://localhost:5001` in your browser.
+
+## Performance Evaluation
+
+We evaluate the system's ability to map linguistic kana to the correct acoustic chunk using the [JVS Corpus](https://sites.google.com/site/shinnosuketakamichi/publication/jsut).
+
+### Metrics (N=4,553 Kana)
+- **Strict Accuracy (55.94%)**: The ground-truth start time falls strictly within the predicted visual chunk.
+- **Tolerant Accuracy (74.81%)**: The predicted chunk starts within **100ms** of the ground truth (perceptually accurate).
+- **Average Deviation**: 0.24s (mostly due to onset gating latency).
+
+### Visualization
+Below are the results of the alignment capabilities:
+
+| Accuracy Distribution | Deviation Histogram |
+|----------------------|---------------------|
+| ![Pie Charts](./evaluation_pies.png) | ![Histogram](./evaluation_histogram.png) |
+
+## Tech Stack
+
+- **Backend**: Flask, NumPy, Librosa
+- **AI/ML**: Faster-Whisper (ASR), SudachiPy (NLP)
+- **Frontend**: Vanilla JS with Canvas API for high-performance rendering (60fps)
 
 ## Usage
 
-- **Start Mic**: Begin real-time pitch feedback.
-- **Record**: Save your practice sessions to compare later.
-- **Upload Reference**: Upload any audio to get a "truth" trail with automatically assigned readings.
-- **Apply Overlay**: Selection a previous recording or upload from the dropdown to see it on the canvas.
+1. **Record/Upload**: Capture your voice or upload a native reference file.
+2. **Analyze**: The system extracts the pitch trail, performs STT, and aligns the lyrics.
+3. **Compare**: Your pitch is overlaid on the reference. Use the playback controls to loop difficult sections.
 
-## Technical Details
-
-### Pitch Detection Engine
-- **Algorithm**: Autocorrelation-based frequency estimation refined with **parabolic interpolation**. This achieves sub-sample precision, removing the "stair-step" artifacts common in digital pitch detection.
-- **Stability Logic**: Implements a 2-frame onset stability check and a 120ms speech hangover to prevent trail flickering during fast consonants or glottal stops.
-- **Raw Audio Pipeline**: Explicitly disables browser-level `echoCancellation`, `noiseSuppression`, and `autoGainControl` to preserve raw harmonic content for the detector.
-
-### STT Alignment
-- **Linguistic Logic**: The backend (SudachiPy) identifies moraic structures that require physical gaps in the pitch trail, such as the sokuon (っ) and the moraic nasal (ん). Timing from `faster-whisper` is mapped to acoustic "chunks" in the pitch history using a midpoint-based best-fit algorithm.
-
-## Local CLI Tool
-
-For quick local testing without a browser, you can use the secondary Python script:
-
-```bash
-python realtime_spectrogram.py
-```
-
-### Script Options:
-- `--seconds` (`-s`): rolling window length in seconds (default 5.0).
-- `--device` (`-d`): numeric input device ID.
-- `--samplerate` (`-r`): override hardware samplerate.
-
-*Note: The CLI tool uses `librosa.yin` for pitch estimation and is separate from the high-precision Web Audio engine used in the Flask app.*

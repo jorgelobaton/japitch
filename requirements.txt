@@ -1,9 +1,13 @@
+flask
+faster-whisper
+SudachiPy
+SudachiDict_core
 sounddevice
 numpy
-matplotlib
 librosa
+matplotlib
+# New for JVS processing:
 scipy
-Flask
-faster-whisper
-sudachipy
-sudachidict_core
+pandas
+jiwer
+tqdm
